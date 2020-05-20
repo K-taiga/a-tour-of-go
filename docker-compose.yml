@@ -7,5 +7,5 @@ services:
     privileged: true
     volumes:
       - ./server:/app
-    command: /bin/sh
+    command: /bin/bash
     stdin_open: true
