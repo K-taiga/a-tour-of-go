@@ -7,8 +7,10 @@ import (
 	"sync"
 	"text/template"
 	// "math/rand"
-	// "math"
+	"math"
 	// "math/cmplx"
+	// "runtime"
+	// "time"
 )
 
 type templateHandler struct {
@@ -56,6 +58,38 @@ func split(sum int) (x, y int) {
 func needInt(x int) int           { return x*10 + 1 }
 func needFloat(x float64) float64 { return x * 0.1 }
 
+func sqrt(x float64) string {
+	// ifの()も不要
+	if x < 0 {
+		return sqrt(-x) + "i"
+	}
+	return fmt.Sprint(math.Sqrt(x))
+}
+
+func pow(x, n, lim float64) float64 {
+	// Pow = べき乗
+	// 条件で評価する前にステートメントを記述できる
+	// xをnべき乗したものとlimを比較
+	if v := math.Pow(x, n); v < lim {
+		return v
+	} else {
+		fmt.Printf("%g >= %g\n", v, lim)
+	}
+	return lim
+}
+
+func Sqrt(x float64) float64 {
+	// z := float64(1)
+	z := 1.0
+	// iが直前の値
+	// z -= i 直前に求めたzの値からiを引く
+	// その値が限りなくなくなるまで続ける　1e - 10
+	for i := 1.0; i*i > 1e-10; z -= i {
+		i = (z*z - x) / (2 * z)
+	}
+	return z
+}
+
 // 変数のリスト　パッケージと関数内で利用できる　型は一緒なら最後だけでOK
 // var c , python , java bool
 
@@ -79,6 +113,8 @@ const (
 )
 
 func main() {
+	// ・Packages, variables, and functions.
+
 	// fmt.Println("My favorite number is", rand.Intn(10))
 
 	// fmt.Printf("Now you have %g problems.", math.Sqrt(7))
@@ -145,8 +181,88 @@ func main() {
 	// const Truth = true
 	// fmt.Println("Go rules?", Truth)
 
-	fmt.Println(needInt(Small))
-	fmt.Println(needFloat(Small))
-	fmt.Println(needFloat(Big))
+	// fmt.Println(needInt(Small))
+	// fmt.Println(needFloat(Small))
+	// fmt.Println(needFloat(Big))
 
+	// ・Flow control statements: for, if, else, switch and defer
+
+	// falseになるまで
+	// sum := 0
+	// for i := 0; i < 10; i++ {
+	// 	sum += i
+	// }
+	// fmt.Println(sum)
+
+	// 初期化と後処理の記述は任意
+	// ;も省略可 goではwhileはなくforのみ
+	// sum := 1
+	// for sum < 1000 {
+	// 	sum += sum
+	// }
+	// fmt.Println(sum)
+
+	// 無限ループ
+	// for {
+	// }
+
+	// fmt.Println(sqrt(2), sqrt(-4))
+
+	// fmt.Println(
+	// 	pow(3, 2, 10),
+	// 	pow(3, 3, 20),
+	// )
+
+	// Exercise: Loops and Functions
+	// fmt.Println(Sqrt(16))
+
+	// fmt.Print("Go run on ")
+	//どれかのcaseだけ実行し自動でbreak
+	// switch os := runtime.GOOS; os {
+	// case "darwin":
+	// 	fmt.Println("OS x.")
+	// case "linux":
+	// 	fmt.Println("Linux.")
+	// default:
+	// 	fmt.Printf("%s.", os)
+	// }
+
+	// fmt.Println("When's Saturday?")
+	// today := time.Now().Weekday()
+	// switch time.Saturday {
+	// case today + 0:
+	// 	fmt.Println("Today")
+	// case today + 1:
+	// 	fmt.Println("Tomorrow")
+	// case today + 2:
+	// 	fmt.Println("In two days")
+	// default:
+	// 	fmt.Println("Too far away")
+	// }
+
+	// t := time.Now()
+	// 条件のないswitchはswitch trueと同じ
+	// switch {
+	// case t.Hour() < 12:
+	// 	fmt.Println("Good morning!")
+	// case t.Hour() < 17:
+	// 	fmt.Println("Good afternoon")
+	// default:
+	// 	fmt.Println("Good evening")
+	// }
+
+	// defer = 延期する
+	// deferへ渡した関数の実行を呼び出し元の関数の終わりまで延期させる
+	// deferで渡した関数への引数はすぐに評価されるが、それが実行されるのは最後
+	// defer fmt.Println("world")
+	// fmt.Println("hello")
+
+	// deferへ渡した関数が複数あればスタックされ、last in first outで実行される(入れたもの順に実行される)
+	fmt.Println("counting")
+
+	for i := 0; i < 10; i++ {
+		defer fmt.Println(i)
+	}
+
+	fmt.Println("done")
 }
