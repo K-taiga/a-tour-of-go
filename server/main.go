@@ -12,8 +12,9 @@ import (
 	// "math/cmplx"
 	// "runtime"
 	// "time"
-	// "strings"
-	"golang.org/x/tour/pic"
+	"strings"
+
+	"golang.org/x/tour/wc"
 )
 
 type templateHandler struct {
@@ -116,16 +117,50 @@ const (
 )
 
 // クラスがないため構造体のstructが似た役割として使われる
+// type Vertex struct {
+// 	X, Y int
+// }
+
+// var (
+// 	v1 = Vertex{1, 2}  // has type Vertex
+// 	v2 = Vertex{X: 1}  // Y:0 is implicit
+// 	v3 = Vertex{}      // X:0 and Y:0
+// 	p  = &Vertex{1, 2} // has type *Vertex
+// )
+
 type Vertex struct {
-	X, Y int
+	Lat, Long float64
 }
 
-var (
-	v1 = Vertex{1, 2}  // has type Vertex
-	v2 = Vertex{X: 1}  // Y:0 is implicit
-	v3 = Vertex{}      // X:0 and Y:0
-	p  = &Vertex{1, 2} // has type *Vertex
-)
+// 構造体はそのままでは使えないから変数として宣言する必要がある
+// mapはキーと値をマップ（関連付け）する
+//キーがstringとVertexを紐付け　この時は型が決まっているが値はnil
+// var m map[string]Vertex
+
+// 変数の宣言と同時に中身も作成
+// var m = map[string]Vertex{
+// 	// "Bell Labs": Vertex{
+// 	// 	40.68433, -74.39967,
+// 	// },
+// 	// "Google": Vertex{
+// 	// 	37.42202, -122.08408,
+// 	// },
+// 	//値の型が単純な型名の場合は値の型から推測できるので、省略可能
+// 	"Bell Labs": {40.68433, -74.39967},
+// 	"Google":    {37.42202, -122.08408},
+// }
+
+func Pic(dx, dy int) [][]uint8 {
+	// 256個の配列を作成
+	pic := make([][]uint8, dy)
+	for y := range pic {
+		pic[y] = make([]uint8, dx)
+		for x := range pic[y] {
+			pic[y][x] = uint8((x + y) / 2)
+		}
+	}
+	return pic
+}
 
 // var pow = []int{1, 2, 4, 8, 16, 32, 64, 128}
 
@@ -472,22 +507,51 @@ func main() {
 	// 	fmt.Printf("%d\n", value)
 	// }
 
-	pic.Show(Pic)
+	// pic.Show(Pic)
 
-}
+	// m = make(map[string]Vertex)
+	// m["Bell Labs"] = Vertex{
+	// 	40.68433, -74.39967,
+	// }
 
-func Pic(dx, dy int) [][]uint8 {
-	pic := make([][]uint8, dy)
-	for y := range pic {
-		pic[y] = make([]uint8, dx)
-		for x := range pic[y] {
-			pic[y][x] = uint8((x + y) / 2)
-		}
-	}
-	return pic
+	// // fmt.Println(m["Bell Labs"])
+	// fmt.Println(m["Lat"])
+	// fmt.Println(m["Long"])
+
+	// fmt.Println(m)
+
+	// キーがsting,値がintのmapを作成
+	m := make(map[string]int)
+
+	m["Answer"] = 42
+	fmt.Println("The value", m["Answer"])
+
+	m["Answer"] = 48
+	fmt.Println("The value:", m["Answer"])
+
+	delete(m, "Answer")
+
+	fmt.Println("The value:", m["Answer"])
+
+	// キーに対する要素が存在するかどうかは、2つ目の値で確認できる
+	// もし、 m に key があれば、変数 ok は true となり、存在しなければ、 ok は false
+	// その際vは0
+	v, ok := m["Answer"]
+	fmt.Println("The value:", v, "Present?", ok)
+
+	wc.Test(WordCount)
+
 }
 
 func printSlice(s []int) {
 	// lenは要素の長さ capはあとどれだけ入れられるか
 	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
+}
+
+func WordCount(s string) map[string]int {
+	m := make(map[string]int)
+	for _, w := range strings.Fields(s) {
+		m[w]++
+	}
+	return m
 }
