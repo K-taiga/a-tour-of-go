@@ -6,12 +6,14 @@ import (
 	"path/filepath"
 	"sync"
 	"text/template"
+
 	// "math/rand"
 	"math"
 	// "math/cmplx"
 	// "runtime"
 	// "time"
 	// "strings"
+	"golang.org/x/tour/pic"
 )
 
 type templateHandler struct {
@@ -79,17 +81,17 @@ func sqrt(x float64) string {
 // 	return lim
 // }
 
-func Sqrt(x float64) float64 {
-	// z := float64(1)
-	z := 1.0
-	// iが直前の値
-	// z -= i 直前に求めたzの値からiを引く
-	// その値が限りなくなくなるまで続ける　1e - 10
-	for i := 1.0; i*i > 1e-10; z -= i {
-		i = (z*z - x) / (2 * z)
-	}
-	return z
-}
+// func Sqrt(x float64) float64 {
+// 	// z := float64(1)
+// 	z := 1.0
+// 	// iが直前の値
+// 	// z -= i 直前に求めたzの値からiを引く
+// 	// その値が限りなくなくなるまで続ける　1e - 10
+// 	for i := 1.0; i*i > 1e-10; z -= i {
+// 		i = (z*z - x) / (2 * z)
+// 	}
+// 	return z
+// }
 
 // 変数のリスト　パッケージと関数内で利用できる　型は一緒なら最後だけでOK
 // var c , python , java bool
@@ -462,14 +464,27 @@ func main() {
 	// }
 
 	// indexやvalueはいらなければ、indexは _ もしくは valueは省略可
-	pow := make([]int, 10)
-	for i := range pow {
-		pow[i] = 1 << uint(i)
-	}
-	for _, value := range pow {
-		fmt.Printf("%d\n", value)
-	}
+	// pow := make([]int, 10)
+	// for i := range pow {
+	// 	pow[i] = 1 << uint(i)
+	// }
+	// for _, value := range pow {
+	// 	fmt.Printf("%d\n", value)
+	// }
 
+	pic.Show(Pic)
+
+}
+
+func Pic(dx, dy int) [][]uint8 {
+	pic := make([][]uint8, dy)
+	for y := range pic {
+		pic[y] = make([]uint8, dx)
+		for x := range pic[y] {
+			pic[y][x] = uint8((x + y) / 2)
+		}
+	}
+	return pic
 }
 
 func printSlice(s []int) {
