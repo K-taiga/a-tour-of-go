@@ -6,15 +6,10 @@ import (
 	"path/filepath"
 	"sync"
 	"text/template"
-
 	// "math/rand"
-	"math"
 	// "math/cmplx"
 	// "runtime"
 	// "time"
-	"strings"
-
-	"golang.org/x/tour/wc"
 )
 
 type templateHandler struct {
@@ -37,61 +32,6 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 //   if err := http.ListenAndServe(":8080", nil); err != nil {
 //     log.Fatal("ListenAndServe", err)
 //   }
-// }
-
-// 関数の２つ以上の引数が同じ型である場合には、最後の型を残して省略して記述
-// 戻り値の型も指定できる
-func add(x, y int) int {
-	return x + y
-}
-
-func swap(x, y string) (string, string) {
-	return y, x
-}
-
-// 戻り値に名前をつけると関数の最初で変数を定義したものとして、関数の中でそのまm使える
-func split(sum int) (x, y int) {
-	x = sum * 4 / 9
-	y = sum - x
-
-	// 名前をつけた戻り値の変数はreturnのみで返せる　naked return
-	// 長いコードではnaked returnは可読性が悪い
-	return
-}
-
-func needInt(x int) int           { return x*10 + 1 }
-func needFloat(x float64) float64 { return x * 0.1 }
-
-func sqrt(x float64) string {
-	// ifの()も不要
-	if x < 0 {
-		return sqrt(-x) + "i"
-	}
-	return fmt.Sprint(math.Sqrt(x))
-}
-
-// func pow(x, n, lim float64) float64 {
-// 	// Pow = べき乗
-// 	// 条件で評価する前にステートメントを記述できる
-// 	// xをnべき乗したものとlimを比較
-// 	if v := math.Pow(x, n); v < lim {
-// 		return v
-// 	} else {
-// 		fmt.Printf("%g >= %g\n", v, lim)
-// 	}
-// 	return lim
-// }
-
-// func Sqrt(x float64) float64 {
-// 	// z := float64(1)
-// 	z := 1.0
-// 	// iが直前の値
-// 	// z -= i 直前に求めたzの値からiを引く
-// 	// その値が限りなくなくなるまで続ける　1e - 10
-// 	for i := 1.0; i*i > 1e-10; z -= i {
-// 		i = (z*z - x) / (2 * z)
-// 	}
-// 	return z
 // }
 
 // 変数のリスト　パッケージと関数内で利用できる　型は一緒なら最後だけでOK
@@ -521,37 +461,150 @@ func main() {
 	// fmt.Println(m)
 
 	// キーがsting,値がintのmapを作成
-	m := make(map[string]int)
+	// m := make(map[string]int)
 
-	m["Answer"] = 42
-	fmt.Println("The value", m["Answer"])
+	// m["Answer"] = 42
+	// fmt.Println("The value", m["Answer"])
 
-	m["Answer"] = 48
-	fmt.Println("The value:", m["Answer"])
+	// m["Answer"] = 48
+	// fmt.Println("The value:", m["Answer"])
 
-	delete(m, "Answer")
+	// delete(m, "Answer")
 
-	fmt.Println("The value:", m["Answer"])
+	// fmt.Println("The value:", m["Answer"])
 
 	// キーに対する要素が存在するかどうかは、2つ目の値で確認できる
 	// もし、 m に key があれば、変数 ok は true となり、存在しなければ、 ok は false
 	// その際vは0
-	v, ok := m["Answer"]
-	fmt.Println("The value:", v, "Present?", ok)
+	// v, ok := m["Answer"]
+	// fmt.Println("The value:", v, "Present?", ok)
 
-	wc.Test(WordCount)
+	// wc.Test(WordCount)
 
-}
+	// 関数をそのまま変数に入れられる
+	// hypot := func(x, y float64) float64 {
+	// 	return math.Sqrt(x*x + y*y)
+	// }
 
-func printSlice(s []int) {
-	// lenは要素の長さ capはあとどれだけ入れられるか
-	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
-}
+	// fmt.Println(hypot(5, 12))
 
-func WordCount(s string) map[string]int {
-	m := make(map[string]int)
-	for _, w := range strings.Fields(s) {
-		m[w]++
+	// fmt.Println(compute(hypot))
+	// fmt.Println(compute(math.Pow))
+
+	// 変数それぞれに関数をバインド
+	// pos, neg := adder(), adder()
+	// pos := adder()
+	// for i := 0; i < 10; i++ {
+	// 	fmt.Println(
+	// 		pos(i),
+	// 		neg(-2*i),
+	// 	)
+	// }
+
+	// 関数を変数にバインド
+	f := fibonacci()
+	for i := 0; i < 10; i++ {
+		// fibonacci関数の中で0,1が定義されているためそのまま実行でき数列が出来上がる
+		fmt.Println(f())
 	}
-	return m
+
+}
+
+// 関数の２つ以上の引数が同じ型である場合には、最後の型を残して省略して記述
+// 戻り値の型も指定できる
+// func add(x, y int) int {
+// 	return x + y
+// }
+
+// func swap(x, y string) (string, string) {
+// 	return y, x
+// }
+
+// // 戻り値に名前をつけると関数の最初で変数を定義したものとして、関数の中でそのまm使える
+// func split(sum int) (x, y int) {
+// 	x = sum * 4 / 9
+// 	y = sum - x
+
+// 	// 名前をつけた戻り値の変数はreturnのみで返せる　naked return
+// 	// 長いコードではnaked returnは可読性が悪い
+// 	return
+// }
+
+// func needInt(x int) int           { return x*10 + 1 }
+// func needFloat(x float64) float64 { return x * 0.1 }
+
+// func sqrt(x float64) string {
+// 	// ifの()も不要
+// 	if x < 0 {
+// 		return sqrt(-x) + "i"
+// 	}
+// 	return fmt.Sprint(math.Sqrt(x))
+// }
+
+// func pow(x, n, lim float64) float64 {
+// 	// Pow = べき乗
+// 	// 条件で評価する前にステートメントを記述できる
+// 	// xをnべき乗したものとlimを比較
+// 	if v := math.Pow(x, n); v < lim {
+// 		return v
+// 	} else {
+// 		fmt.Printf("%g >= %g\n", v, lim)
+// 	}
+// 	return lim
+// }
+
+// func Sqrt(x float64) float64 {
+// 	// z := float64(1)
+// 	z := 1.0
+// 	// iが直前の値
+// 	// z -= i 直前に求めたzの値からiを引く
+// 	// その値が限りなくなくなるまで続ける　1e - 10
+// 	for i := 1.0; i*i > 1e-10; z -= i {
+// 		i = (z*z - x) / (2 * z)
+// 	}
+// 	return z
+// }
+
+// func printSlice(s []int) {
+// 	// lenは要素の長さ capはあとどれだけ入れられるか
+// 	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
+// }
+
+// func WordCount(s string) map[string]int {
+// 	m := make(map[string]int)
+
+// 	// 空白で文字列を区切る
+// 	// 区切った文字列の文字数の分だけforを回す
+// 	for _, w := range strings.Fields(s) {
+// 		// m[w＝ランダムなワード]：[その数]
+// 		m[w]++
+// 	}
+// 	return m
+// }
+
+// 返り値をそのまま中の関数に渡している
+// func compute(fn func(float64, float64) float64) float64 {
+// 	return fn(3, 4)
+// }
+
+// func adderの戻り値はfunc(int)int
+// func adder() func(int) int {
+// 	// この値は返っていない
+// 	sum := 0
+// 	// fmt.Println(sum)
+// 	// adderの返り値の実態は以下の関数
+// 	// そのため変数にバインドする際は以下の関数だけが入っている
+// 	return func(x int) int {
+// 		sum += x
+// 		return sum
+// 	}
+// }
+
+func fibonacci() func() int {
+	f, g := 0, 1
+	// fibonacciで返っているのは以下の関数
+	return func() int {
+		f, g = g, f+g
+		return f
+	}
 }
