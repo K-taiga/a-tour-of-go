@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"path/filepath"
 	"sync"
@@ -68,9 +69,15 @@ const (
 // 	p  = &Vertex{1, 2} // has type *Vertex
 // )
 
+// type Vertex struct {
+// 	Lat, Long float64
+// }
+
 type Vertex struct {
-	Lat, Long float64
+	X, Y float64
 }
+
+type MyFloat float64
 
 // 構造体はそのままでは使えないから変数として宣言する必要がある
 // mapはキーと値をマップ（関連付け）する
@@ -90,19 +97,167 @@ type Vertex struct {
 // 	"Google":    {37.42202, -122.08408},
 // }
 
-func Pic(dx, dy int) [][]uint8 {
-	// 256個の配列を作成
-	pic := make([][]uint8, dy)
-	for y := range pic {
-		pic[y] = make([]uint8, dx)
-		for x := range pic[y] {
-			pic[y][x] = uint8((x + y) / 2)
-		}
-	}
-	return pic
+// var pow = []int{1, 2, 4, 8, 16, 32, 64, 128}
+
+// 関数の２つ以上の引数が同じ型である場合には、最後の型を残して省略して記述
+// 戻り値の型も指定できる
+// func add(x, y int) int {
+// 	return x + y
+// }
+
+// func swap(x, y string) (string, string) {
+// 	return y, x
+// }
+
+// // 戻り値に名前をつけると関数の最初で変数を定義したものとして、関数の中でそのまm使える
+// func split(sum int) (x, y int) {
+// 	x = sum * 4 / 9
+// 	y = sum - x
+
+// 	// 名前をつけた戻り値の変数はreturnのみで返せる　naked return
+// 	// 長いコードではnaked returnは可読性が悪い
+// 	return
+// }
+
+// func needInt(x int) int           { return x*10 + 1 }
+// func needFloat(x float64) float64 { return x * 0.1 }
+
+// func sqrt(x float64) string {
+// 	// ifの()も不要
+// 	if x < 0 {
+// 		return sqrt(-x) + "i"
+// 	}
+// 	return fmt.Sprint(math.Sqrt(x))
+// }
+
+// func pow(x, n, lim float64) float64 {
+// 	// Pow = べき乗
+// 	// 条件で評価する前にステートメントを記述できる
+// 	// xをnべき乗したものとlimを比較
+// 	if v := math.Pow(x, n); v < lim {
+// 		return v
+// 	} else {
+// 		fmt.Printf("%g >= %g\n", v, lim)
+// 	}
+// 	return lim
+// }
+
+// func Sqrt(x float64) float64 {
+// 	// z := float64(1)
+// 	z := 1.0
+// 	// iが直前の値
+// 	// z -= i 直前に求めたzの値からiを引く
+// 	// その値が限りなくなくなるまで続ける　1e - 10
+// 	for i := 1.0; i*i > 1e-10; z -= i {
+// 		i = (z*z - x) / (2 * z)
+// 	}
+// 	return z
+// }
+
+// func printSlice(s []int) {
+// 	// lenは要素の長さ capはあとどれだけ入れられるか
+// 	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
+// }
+
+// func Pic(dx, dy int) [][]uint8 {
+// 	// 256個の配列を作成
+// 	pic := make([][]uint8, dy)
+// 	for y := range pic {
+// 		pic[y] = make([]uint8, dx)
+// 		for x := range pic[y] {
+// 			pic[y][x] = uint8((x + y) / 2)
+// 		}
+// 	}
+// 	return pic
+// }
+
+// func WordCount(s string) map[string]int {
+// 	m := make(map[string]int)
+
+// 	// 空白で文字列を区切る
+// 	// 区切った文字列の文字数の分だけforを回す
+// 	for _, w := range strings.Fields(s) {
+// 		// m[w＝ランダムなワード]：[その数]
+// 		m[w]++
+// 	}
+// 	return m
+// }
+
+// 返り値をそのまま中の関数に渡している
+// func compute(fn func(float64, float64) float64) float64 {
+// 	return fn(3, 4)
+// }
+
+// func adderの戻り値はfunc(int)int
+// func adder() func(int) int {
+// 	// この値は返っていない
+// 	sum := 0
+// 	// fmt.Println(sum)
+// 	// adderの返り値の実態は以下の関数
+// 	// そのため変数にバインドする際は以下の関数だけが入っている
+// 	return func(x int) int {
+// 		sum += x
+// 		return sum
+// 	}
+// }
+
+// func fibonacci() func() int {
+// 	f, g := 0, 1
+// 	// fibonacciで返っているのは以下の関数
+// 	return func() int {
+// 		f, g = g, f+g
+// 		return f
+// 	}
+// }
+
+// 特別なレシーバ( receiver )引数を関数にとる
+// Abs関数はvという名前でVertex型を持つということ
+// func (v Vertex) Abs() float64 {
+// 	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+// }
+
+// func Abs(v Vertex) float64 {
+// 	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+// }
+
+// Abs メソッドを持つ、数値型の MyFloat 型を定義
+// func (f MyFloat) Abs() float64 {
+// 	if f < 0 {
+// 		return float64(-f)
+// 	}
+// 	return float64(f)
+// }
+
+// func (v Vertex) Abs() float64 {
+// 	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+// }
+
+// Scaleメソッドを持つ、Vertexのコピーであるvを返すのを定義
+// ポインタで実態を操作
+// func (v *Vertex) Scale(f float64) {
+// 	v.X = v.X * f
+// 	v.Y = v.Y * f
+// }
+
+// func (v *Vertex) Scale(f float64) {
+// 	v.X = v.X * f
+// 	v.Y = v.Y * f
+// }
+
+// // ポインタを引数にとる
+// func ScaleFunc(v *Vertex, f float64) {
+// 	v.X = v.X * f
+// 	v.Y = v.Y * f
+// }
+
+func (v *Vertex) Scale(f float64) {
+	v.X = v.X * f
+	v.Y = v.Y * f
 }
 
-// var pow = []int{1, 2, 4, 8, 16, 32, 64, 128}
+func (v *Vertex) Abs() float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
 
 func main() {
 	// ・Packages, variables, and functions.
@@ -502,109 +657,43 @@ func main() {
 	// }
 
 	// 関数を変数にバインド
-	f := fibonacci()
-	for i := 0; i < 10; i++ {
-		// fibonacci関数の中で0,1が定義されているためそのまま実行でき数列が出来上がる
-		fmt.Println(f())
-	}
+	// f := fibonacci()
+	// for i := 0; i < 10; i++ {
+	// 	// fibonacci関数の中で0,1が定義されているためそのまま実行でき数列が出来上がる
+	// 	fmt.Println(f())
+	// }
 
-}
+	// v := Vertex{3, 4}
+	// // fmt.Println(v.Abs())
+	// fmt.Println(Abs(v))
 
-// 関数の２つ以上の引数が同じ型である場合には、最後の型を残して省略して記述
-// 戻り値の型も指定できる
-// func add(x, y int) int {
-// 	return x + y
-// }
+	// f := MyFloat(-math.Sqrt2)
+	// fmt.Println(f.Abs())
 
-// func swap(x, y string) (string, string) {
-// 	return y, x
-// }
+	// 構造に3,4を定義
+	// v := Vertex{3, 4}
+	// 10倍にスケール
+	// ScaleはVertexの実態をポインタで操作している
+	// そうじゃなければ元の値のコピーになるためAbsは変更されない
+	// v.Scale(10)
+	// fmt.Println(v.Abs())
 
-// // 戻り値に名前をつけると関数の最初で変数を定義したものとして、関数の中でそのまm使える
-// func split(sum int) (x, y int) {
-// 	x = sum * 4 / 9
-// 	y = sum - x
+	// v := Vertex{3, 4}
+	// v.Scale(2)
+	// ScaleFunc(&v, 10)
 
-// 	// 名前をつけた戻り値の変数はreturnのみで返せる　naked return
-// 	// 長いコードではnaked returnは可読性が悪い
-// 	return
-// }
+	// p := &Vertex{4, 3}
+	// p.Scale(3)
+	// ScaleFunc(p, 8)
 
-// func needInt(x int) int           { return x*10 + 1 }
-// func needFloat(x float64) float64 { return x * 0.1 }
+	// fmt.Println(v, p)
 
-// func sqrt(x float64) string {
-// 	// ifの()も不要
-// 	if x < 0 {
-// 		return sqrt(-x) + "i"
-// 	}
-// 	return fmt.Sprint(math.Sqrt(x))
-// }
+	// ポインタレシーバは実態を操作するため
+	// メソッドごとに変数のコピーを避けるため
+	v := &Vertex{3, 4}
+	fmt.Printf("Before scaling: %+v, Abs: %v\n", v, v.Abs())
 
-// func pow(x, n, lim float64) float64 {
-// 	// Pow = べき乗
-// 	// 条件で評価する前にステートメントを記述できる
-// 	// xをnべき乗したものとlimを比較
-// 	if v := math.Pow(x, n); v < lim {
-// 		return v
-// 	} else {
-// 		fmt.Printf("%g >= %g\n", v, lim)
-// 	}
-// 	return lim
-// }
+	v.Scale(5)
+	fmt.Printf("After scaling: %+v, Abs: %v\n", v, v.Abs())
 
-// func Sqrt(x float64) float64 {
-// 	// z := float64(1)
-// 	z := 1.0
-// 	// iが直前の値
-// 	// z -= i 直前に求めたzの値からiを引く
-// 	// その値が限りなくなくなるまで続ける　1e - 10
-// 	for i := 1.0; i*i > 1e-10; z -= i {
-// 		i = (z*z - x) / (2 * z)
-// 	}
-// 	return z
-// }
-
-// func printSlice(s []int) {
-// 	// lenは要素の長さ capはあとどれだけ入れられるか
-// 	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
-// }
-
-// func WordCount(s string) map[string]int {
-// 	m := make(map[string]int)
-
-// 	// 空白で文字列を区切る
-// 	// 区切った文字列の文字数の分だけforを回す
-// 	for _, w := range strings.Fields(s) {
-// 		// m[w＝ランダムなワード]：[その数]
-// 		m[w]++
-// 	}
-// 	return m
-// }
-
-// 返り値をそのまま中の関数に渡している
-// func compute(fn func(float64, float64) float64) float64 {
-// 	return fn(3, 4)
-// }
-
-// func adderの戻り値はfunc(int)int
-// func adder() func(int) int {
-// 	// この値は返っていない
-// 	sum := 0
-// 	// fmt.Println(sum)
-// 	// adderの返り値の実態は以下の関数
-// 	// そのため変数にバインドする際は以下の関数だけが入っている
-// 	return func(x int) int {
-// 		sum += x
-// 		return sum
-// 	}
-// }
-
-func fibonacci() func() int {
-	f, g := 0, 1
-	// fibonacciで返っているのは以下の関数
-	return func() int {
-		f, g = g, f+g
-		return f
-	}
 }
