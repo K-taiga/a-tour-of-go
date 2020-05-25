@@ -73,11 +73,11 @@ const (
 // 	Lat, Long float64
 // }
 
-type Vertex struct {
-	X, Y float64
-}
+// type Vertex struct {
+// 	X, Y float64
+// }
 
-type MyFloat float64
+// type MyFloat float64
 
 // 構造体はそのままでは使えないから変数として宣言する必要がある
 // mapはキーと値をマップ（関連付け）する
@@ -250,13 +250,60 @@ type MyFloat float64
 // 	v.Y = v.Y * f
 // }
 
-func (v *Vertex) Scale(f float64) {
-	v.X = v.X * f
-	v.Y = v.Y * f
+// func (v *Vertex) Scale(f float64) {
+// 	v.X = v.X * f
+// 	v.Y = v.Y * f
+// }
+
+// func (v *Vertex) Abs() float64 {
+// 	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+// }
+
+// type Abser interface {
+// 	Abs() float64
+// }
+
+// type MyFloat float64
+
+// func (f MyFloat) Abs() float64 {
+// 	if f < 0 {
+// 		return float64(-f)
+// 	}
+// 	return float64(f)
+// }
+
+// type Vertex struct {
+// 	X, Y float64
+// }
+
+// func (v *Vertex) Abs() float64 {
+// 	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+// }
+
+type I interface {
+	M()
 }
 
-func (v *Vertex) Abs() float64 {
-	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+type T struct {
+	S string
+}
+
+// func (t T) M() {
+// 	fmt.Println(t.S)
+// }
+
+func (t *T) M() {
+	fmt.Println(t.S)
+}
+
+type F float64
+
+func (f F) M() {
+	fmt.Println(f)
+}
+
+func describe(i I) {
+	fmt.Printf("(%v, %T)\n", i, i)
 }
 
 func main() {
@@ -689,11 +736,37 @@ func main() {
 	// fmt.Println(v, p)
 
 	// ポインタレシーバは実態を操作するため
-	// メソッドごとに変数のコピーを避けるため
-	v := &Vertex{3, 4}
-	fmt.Printf("Before scaling: %+v, Abs: %v\n", v, v.Abs())
+	// // メソッドごとに変数のコピーを避けるため
+	// v := &Vertex{3, 4}
+	// fmt.Printf("Before scaling: %+v, Abs: %v\n", v, v.Abs())
 
-	v.Scale(5)
-	fmt.Printf("After scaling: %+v, Abs: %v\n", v, v.Abs())
+	// v.Scale(5)
+	// fmt.Printf("After scaling: %+v, Abs: %v\n", v, v.Abs())
 
+	// var a Abser
+	// f := MyFloat(-math.Sqrt2)
+	// v := Vertex{3, 4}
+
+	// // インターフェイスにMyFloatを組み込む
+	// a = f
+	// // インターフェイスにVertexの実態を組み込む
+	// a = &v
+
+	// // a = v
+	// fmt.Println(a.Abs())
+
+	// インターフェイスのiにTをimpliment
+	// var i I = T{"hello"}
+	// i.M()
+
+	var i I
+
+	// interfaceにTの実態のHelloを実装
+	i = &T{"Hello"}
+	describe(i)
+	i.M()
+
+	i = F(math.Pi)
+	describe(i)
+	i.M()
 }
