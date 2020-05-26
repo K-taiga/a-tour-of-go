@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"net/http"
 	"path/filepath"
 	"sync"
@@ -280,30 +279,69 @@ const (
 // 	return math.Sqrt(v.X*v.X + v.Y*v.Y)
 // }
 
-type I interface {
-	M()
-}
+// type I interface {
+// 	M()
+// }
 
-type T struct {
-	S string
-}
+// type T struct {
+// 	S string
+// }
 
 // func (t T) M() {
 // 	fmt.Println(t.S)
 // }
 
-func (t *T) M() {
-	fmt.Println(t.S)
-}
+// func (t *T) M() {
+// 	if t == nil {
+// 		fmt.Println("<nil>")
+// 		return
+// 	}
+// 	fmt.Println(t.S)
+// }
 
-type F float64
+// type F float64
 
-func (f F) M() {
-	fmt.Println(f)
-}
+// func (f F) M() {
+// 	fmt.Println(f)
+// }
 
-func describe(i I) {
-	fmt.Printf("(%v, %T)\n", i, i)
+// func describe(i I) {
+// 	fmt.Printf("(%v, %T)\n", i, i)
+// }
+
+// func describe(i interface{}) {
+// 	fmt.Printf("(%v, %T)\n", i, i)
+// }
+
+// 受け取ったinterfaceによってswitching
+// func do(i interface{}) {
+// 	switch v := i.(type) {
+// 	case int:
+// 		fmt.Printf("Twice %v is %v\n", v, v*2)
+// 	case string:
+// 		fmt.Printf("%q is %v bytes long\n", v, len(v))
+// 	default:
+// 		fmt.Printf("I don't know about type %T!\n", v)
+// 	}
+// }
+
+// type Person struct {
+// 	Name string
+// 	Age  int
+// }
+
+// 受け取った変数を文字列で返すinterface
+// type Stringer interface {
+// 	String() string
+// }
+// func (p Person) String() string {
+// 	return fmt.Sprintf("%v (%v years)", p.Name, p.Age)
+// }
+
+type IPAddr [4]byte
+
+func (ip IPAddr) String() string {
+	return fmt.Sprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3])
 }
 
 func main() {
@@ -759,14 +797,80 @@ func main() {
 	// var i I = T{"hello"}
 	// i.M()
 
-	var i I
+	// var i I
 
 	// interfaceにTの実態のHelloを実装
-	i = &T{"Hello"}
-	describe(i)
-	i.M()
+	// i = &T{"Hello"}
+	// describe(i)
+	// i.M()
 
-	i = F(math.Pi)
-	describe(i)
-	i.M()
+	// i = F(math.Pi)
+	// describe(i)
+	// i.M()
+
+	// var i I
+
+	// // Interfaceに中身が空のTを入れる　nilを返す
+	// var t *T
+	// i = t
+	// describe(i)
+	// i.M()
+
+	// i = &T{"hello"}
+	// describe(i)
+	// i.M()
+
+	// nilのインターフェースの値は、値も具体的な型も保持していないためそのまま呼び出すとランタイムエラー
+	// var i I
+	// describe(i)
+	// i.M()
+
+	// 何も中に定義しなければ空のインターフェース
+	// var i interface{}
+	// describe(i)
+
+	// // 任意の型の値をいれられる
+	// i = 42
+	// describe(i)
+
+	// // int -> stringへ変換
+	// i = "hello"
+	// describe(i)
+
+	// var i interface{} = "hello"
+
+	// // interfaceの中にstring型があればそれをsに代入
+	// s := i.(string)
+	// fmt.Println(s)
+
+	// // interfaceの中にstring型があればそれをsに代入しtrueを返す
+	// s, ok := i.(string)
+	// fmt.Println(s, ok)
+
+	// // interfaceの中にfloat64型が無ければ0とfalseを返す
+	// f, ok := i.(float64)
+	// fmt.Println(f, ok)
+
+	// // boolを返さなければpanicエラー
+	// f = i.(float64)
+	// fmt.Println(f)
+
+	// do(21)
+	// do("hello")
+	// do(true)
+
+	// a := Person{"Arthur Dent", 42}
+	// z := Person{"Zaphod Beeblebrox", 9001}
+
+	// fmt.Println(a, z)
+
+	hosts := map[string]IPAddr{
+		"loopback":  {127, 0, 0, 1},
+		"googleDNS": {8, 8, 8, 8},
+	}
+
+	for name, ip := range hosts {
+		fmt.Printf("%v: %v\n", name, ip)
+	}
+
 }
