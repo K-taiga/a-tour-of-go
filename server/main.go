@@ -9,7 +9,6 @@ import (
 	// "math/rand"
 	// "math/cmplx"
 	// "runtime"
-	// "time"
 )
 
 type templateHandler struct {
@@ -48,13 +47,13 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // const Pi = math.Pi
 
-const (
-	// Create a huge number by shifting a 1 bit left 100 places.
-	// In other words, the binary number that is 1 followed by 100 zeroes.
-	Big = 1 << 100
-	// Shift it right again 99 places, so we end up with 1<<1, or 2.
-	Small = Big >> 99
-)
+// const (
+// 	// Create a huge number by shifting a 1 bit left 100 places.
+// 	// In other words, the binary number that is 1 followed by 100 zeroes.
+// 	Big = 1 << 100
+// 	// Shift it right again 99 places, so we end up with 1<<1, or 2.
+// 	Small = Big >> 99
+// )
 
 // クラスがないため構造体のstructが似た役割として使われる
 // type Vertex struct {
@@ -338,10 +337,49 @@ const (
 // 	return fmt.Sprintf("%v (%v years)", p.Name, p.Age)
 // }
 
-type IPAddr [4]byte
+// type IPAddr [4]byte
 
-func (ip IPAddr) String() string {
-	return fmt.Sprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3])
+// func (ip IPAddr) String() string {
+// 	return fmt.Sprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3])
+// }
+
+// type MyError struct {
+// 	When time.Time
+// 	What string
+// }
+
+// errorを文字列で返すinterface
+// type error interface {
+// 	Error() string
+// }
+// func (e *MyError) Error() string {
+// 	return fmt.Sprintf("at %v, %s", e.When, e.What)
+// }
+
+// func run() error {
+// 	return &MyError{
+// 		time.Now(),
+// 		"it didn't work",
+// 	}
+// }
+
+type ErrNegativeSqrt float64
+
+// ErrNegativeSqrtにエラーハンドリングを実装
+func (e ErrNegativeSqrt) Error() string {
+	return fmt.Sprintf("cannnot Sqrt negative number: %v", float64(e))
+}
+
+func Sqrt(x float64) (float64, error) {
+	if x < 0 {
+		return 0, ErrNegativeSqrt(x)
+	}
+
+	z := 1.0
+	for i := 0; i < 10; i++ {
+		z -= (z*z - x) / (2 * z)
+	}
+	return z, nil
 }
 
 func main() {
@@ -864,13 +902,21 @@ func main() {
 
 	// fmt.Println(a, z)
 
-	hosts := map[string]IPAddr{
-		"loopback":  {127, 0, 0, 1},
-		"googleDNS": {8, 8, 8, 8},
-	}
+	// hosts := map[string]IPAddr{
+	// 	"loopback":  {127, 0, 0, 1},
+	// 	"googleDNS": {8, 8, 8, 8},
+	// }
 
-	for name, ip := range hosts {
-		fmt.Printf("%v: %v\n", name, ip)
-	}
+	// for name, ip := range hosts {
+	// 	fmt.Printf("%v: %v\n", name, ip)
+	// }
+
+	// runを実行しエラーハンドリングがnilじゃなければエラーをprint
+	// if err := run(); err != nil {
+	// 	fmt.Println(err)
+	// }
+
+	fmt.Println(Sqrt(2))
+	fmt.Println(Sqrt(-2))
 
 }
