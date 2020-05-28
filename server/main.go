@@ -1,14 +1,19 @@
 package main
 
 import (
-	"fmt"
+	"image"
+	"image/color"
 	"net/http"
 	"path/filepath"
 	"sync"
 	"text/template"
+
 	// "math/rand"
 	// "math/cmplx"
 	// "runtime"
+	// "golang.org/x/tour/reader"
+
+	"golang.org/x/tour/pic"
 )
 
 type templateHandler struct {
@@ -363,23 +368,66 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // 	}
 // }
 
-type ErrNegativeSqrt float64
+// type ErrNegativeSqrt float64
 
-// ErrNegativeSqrtにエラーハンドリングを実装
-func (e ErrNegativeSqrt) Error() string {
-	return fmt.Sprintf("cannnot Sqrt negative number: %v", float64(e))
+// // ErrNegativeSqrtにエラーハンドリングを実装
+// func (e ErrNegativeSqrt) Error() string {
+// 	return fmt.Sprintf("cannnot Sqrt negative number: %v", float64(e))
+// }
+
+// func Sqrt(x float64) (float64, error) {
+// 	if x < 0 {
+// 		return 0, ErrNegativeSqrt(x)
+// 	}
+
+// 	z := 1.0
+// 	for i := 0; i < 10; i++ {
+// 		z -= (z*z - x) / (2 * z)
+// 	}
+// 	return z, nil
+// }
+
+// type MyReader struct{}
+
+// func (r MyReader) Read(b []byte) (int, error) {
+// 	for i := range b {
+// 		b[i] = 'A'
+// 	}
+// 	return len(b), nil
+// }
+
+// io.Readerをラップし変換するものを個別で実装する
+// type rot13Reader struct {
+// 	r io.Reader
+// }
+
+// // 1byteごとに読み込み a~nは+13 n~zは-13 ずらして返す
+// func (rot13 rot13Reader) Read(b []byte) (int, error) {
+// 	n, err := rot13.r.Read(b)
+// 	for i, v := range b {
+// 		switch {
+// 		case v >= 'A' && v < 'N', v >= 'a' && v < 'n':
+// 			b[i] += 13
+// 		case v >= 'N' && v <= 'Z', v >= 'n' && v <= 'z':
+// 			b[i] -= 13
+// 		}
+// 	}
+// 	return n, err
+// }
+
+// 自分のimageを実装
+type Image struct{}
+
+func (i Image) ColorModel() color.Model {
+	return color.RGBAModel
 }
 
-func Sqrt(x float64) (float64, error) {
-	if x < 0 {
-		return 0, ErrNegativeSqrt(x)
-	}
+func (i Image) Bounds() image.Rectangle {
+	return image.Rect(0, 0, 256, 256)
+}
 
-	z := 1.0
-	for i := 0; i < 10; i++ {
-		z -= (z*z - x) / (2 * z)
-	}
-	return z, nil
+func (i Image) At(x, y int) color.Color {
+	return color.RGBA{uint8(x), uint8(y), 255, 255}
 }
 
 func main() {
@@ -916,7 +964,44 @@ func main() {
 	// 	fmt.Println(err)
 	// }
 
-	fmt.Println(Sqrt(2))
-	fmt.Println(Sqrt(-2))
+	// fmt.Println(Sqrt(2))
+	// fmt.Println(Sqrt(-2))
+
+	// r := strings.NewReader("Hello, Reader!")
+	// fmt.Println(r)
+
+	// // 8byteごとのスライスを作成
+	// b := make([]byte, 8)
+	// for {
+	// 	// Readメソッドは与えられたバイトのサイズとエラーの値を返す
+	// 	n, err := r.Read(b)
+	// 	fmt.Printf("n = %v err = %v b = %v\n", n, err, b)
+	// 	fmt.Printf("b[:n] = %q\n", b[:n])
+	// 	// ストリームの終端はio.EOFのエラーで返す
+	// 	if err == io.EOF {
+	// 		break
+	// 	}
+	// }
+
+	// reader.Validate(MyReader{})
+
+	//暗号の解読
+	// s := strings.NewReader("Lbh penpxrq gur pbqr!")
+	// r := rot13Reader{s}
+	// io.Copy(os.Stdout, &r)
+
+	// imageパッケージの実態
+	// 	type Image interface {
+	//     ColorModel() color.Model
+	//     Bounds() Rectangle
+	//     At(x, y int) color.Color
+	// }
+
+	// m := image.NewRGBA(image.Rect(0, 0, 100, 100))
+	// fmt.Println(m.Bounds())
+	// fmt.Println(m.At(0, 0).RGBA())
+
+	m := Image{}
+	pic.ShowImage(m)
 
 }
