@@ -1,19 +1,17 @@
 package main
 
 import (
-	"image"
-	"image/color"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"sync"
 	"text/template"
-
+	"time"
 	// "math/rand"
 	// "math/cmplx"
 	// "runtime"
 	// "golang.org/x/tour/reader"
-
-	"golang.org/x/tour/pic"
+	// "golang.org/x/tour/pic"
 )
 
 type templateHandler struct {
@@ -416,19 +414,61 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // }
 
 // 自分のimageを実装
-type Image struct{}
+// type Image struct{}
 
-func (i Image) ColorModel() color.Model {
-	return color.RGBAModel
-}
+// func (i Image) ColorModel() color.Model {
+// 	return color.RGBAModel
+// }
 
-func (i Image) Bounds() image.Rectangle {
-	return image.Rect(0, 0, 256, 256)
-}
+// func (i Image) Bounds() image.Rectangle {
+// 	return image.Rect(0, 0, 256, 256)
+// }
 
-func (i Image) At(x, y int) color.Color {
-	return color.RGBA{uint8(x), uint8(y), 255, 255}
-}
+// func (i Image) At(x, y int) color.Color {
+// 	return color.RGBA{uint8(x), uint8(y), 255, 255}
+// }
+
+// func say(s string) {
+// 	for i := 0; i < 5; i++ {
+// 		time.Sleep(100 * time.Millisecond)
+// 		fmt.Println(s)
+// 	}
+// }
+
+// func sum(s []int, c chan int) {
+// 	sum := 0
+// 	for _, v := range s {
+// 		sum += v
+// 	}
+// 	c <- sum
+// }
+
+// func fibonacci(n int, c chan int) {
+// 	x, y := 0, 1
+// 	for i := 0; i < n; i++ {
+// 		// 受け取ったチャネルにxを保持
+// 		c <- x
+// 		x, y = y, x+y
+// 	}
+// 	// もう受信しないというのを知らせる
+//  // 送り手のチャネルだけをclose　この関数からmainのチャネルのcに送っている
+// 	// closeしたchに送信するとpanicを起こす
+// 	close(c)
+// }
+
+// func fibonacci(c, quit chan int) {
+// 	x, y := 0, 1
+// 	for {
+// 		// selectでcに書き込めるかquitが読み込めるようになるまでここでロック
+// 		select {
+// 		case c <- x:
+// 			x, y = y, x+y
+// 		case <-quit:
+// 			fmt.Println("quit")
+// 			return
+// 		}
+// 	}
+// }
 
 func main() {
 	// ・Packages, variables, and functions.
@@ -1001,7 +1041,67 @@ func main() {
 	// fmt.Println(m.Bounds())
 	// fmt.Println(m.At(0, 0).RGBA())
 
-	m := Image{}
-	pic.ShowImage(m)
+	// m := Image{}
+	// pic.ShowImage(m)
+
+	// メモリ空間は共有
+	// 通常の関数をgo 関数名で呼び出せばgoroutineとして呼び出せる
+	// go say("world")
+	// say("hello")
+
+	// s := []int{7, 2, 8, -9, 4, 0}
+
+	// // goroutine間でデータを渡すときはchannelsを使用
+	// c := make(chan int)
+	// // 半分から先
+	// go sum(s[:len(s)/2], c)
+	// // 半分より前
+	// go sum(s[len(s)/2:], c)
+	// // goroutineで別で計算し最終結果を合算する
+	// x, y := <-c, <-c
+
+	// fmt.Println(x, y, x+y)
+
+	// チャネルの第二引数に書き込めるバッファの長さを与える
+	// それを超えたらブロック
+	// ch := make(chan int, 2)
+	// // 1 をチャネルへ送信する
+	// ch <- 1
+	// ch <- 2
+	// // チャネルが空なら受信しない
+	// fmt.Println(<-ch)
+	// fmt.Println(<-ch)
+
+	// c := make(chan int, 10)
+	// go fibonacci(cap(c), c)
+	// for i := range c {
+	// 	fmt.Println(i)
+	// }
+
+	// c := make(chan int)
+	// quit := make(chan int)
+	// go func() {
+	// 	for i := 0; i < 10; i++ {
+	// 		fmt.Println(<-c)
+	// 	}
+	// 	quit <- 0
+	// }()
+	// fibonacci(c, quit)
+
+	tick := time.Tick(100 * time.Millisecond)
+	boom := time.After(500 * time.Millisecond)
+	for {
+		// どのchでもなければdefaultが実行される
+		select {
+		case <-tick:
+			fmt.Println("tick.")
+		case <-boom:
+			fmt.Println("BOOM!")
+			return
+		default:
+			fmt.Println("    .")
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
 
 }
