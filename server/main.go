@@ -6,12 +6,12 @@ import (
 	"path/filepath"
 	"sync"
 	"text/template"
-	"time"
 	// "math/rand"
 	// "math/cmplx"
 	// "runtime"
 	// "golang.org/x/tour/reader"
 	// "golang.org/x/tour/pic"
+	// "golang.org/x/tour/tree"
 )
 
 type templateHandler struct {
@@ -197,7 +197,7 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // 	// adderの返り値の実態は以下の関数
 // 	// そのため変数にバインドする際は以下の関数だけが入っている
 // 	return func(x int) int {
-// 		sum += x
+// 		sum += x1
 // 		return sum
 // 	}
 // }
@@ -469,6 +469,188 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // 		}
 // 	}
 // }
+
+// 二分木の定義
+// type Tree struct {
+// 	Left  *Tree
+// 	Value int
+// 	Right *Tree
+// }
+
+// func Walk(t *tree.Tree, ch chan int) {
+// 	walk(t, ch)
+// 	close(ch)
+// }
+
+// func walk(t *tree.Tree, ch chan int) {
+// 	if t == nil {
+// 		return
+// 	}
+// 	walk(t.Left, ch)
+// 	ch <- t.Value
+// 	walk(t.Right, ch)
+// }
+
+// func Same(t1, t2 *tree.Tree) bool {
+// 	c1, c2 := make(chan int), make(chan int)
+// 	go Walk(t1, c1)
+// 	go Walk(t2, c2)
+
+// 	for {
+// 		v1, ok1 := <-c1
+// 		v2, ok2 := <-c2
+// 		switch {
+// 		case !ok1, !ok2:
+// 			return ok1 == ok2
+// 		case v1 != v2:
+// 			return false
+// 		}
+// 	}
+// }
+
+// type SafeCounter struct {
+// 	v map[string]int
+// 	// Mutexをmux変数で定義
+// 	mux sync.Mutex
+// }
+
+// // SafeCounterにIncメソッドを実装
+// func (c *SafeCounter) Inc(key string) {
+// 	// LockとUnlock間で排他制御する
+// 	c.mux.Lock()
+// 	// goroutineの間、片方ずつしかアクセスできない
+// 	c.v[key]++
+// 	c.mux.Unlock()
+// }
+
+// // SafeCounterにValueメソッドを実装
+// func (c *SafeCounter) Value(key string) int {
+// 	c.mux.Lock()
+
+// 	// deferでUnlockを最後に行うこともできる
+// 	defer c.mux.Unlock()
+// 	return c.v[key]
+// }
+
+type Fetcher interface {
+	Fetch(url string) (body string, urls []string, err error)
+}
+
+type crawlResult struct {
+	url  string
+	body string
+	urls []string
+	err  error
+}
+
+var fetched = make(map[string]bool)
+
+// クロール開始のurl,そこから何階層たどるかのdepth,Fetcher型を受け取る
+func Crawl(url string, depth int, fetcher Fetcher) {
+
+	// crawlResultの型でバッファ1のchanelを作成
+	ch := make(chan crawlResult, 1)
+	// syncの変数を設定
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	go crawlWorker(url, depth, fetcher, ch, &wg)
+	for r := range ch {
+		if r.err == nil {
+			fmt.Printf("found: %s %q\n", r.url, r.body)
+		} else {
+			fmt.Printf("not found: %s\n", r.url)
+		}
+	}
+}
+
+func crawlWorker(url string, depth int, fetcher Fetcher, ch chan crawlResult, wg *sync.WaitGroup) {
+	// TODO: Fetch URLs in parallel.
+	// TODO: Don't fetch the same URL twice.
+	// This implementation doesn't do either:
+	// fmt.Printf("%s", wg)
+	defer wg.Done()
+	// 階層が0以下なら即終了
+	if depth <= 0 {
+		return
+	}
+	if fetched[url] {
+		return
+	}
+	fetched[url] = true
+	// body,url,errを返すFetchを実行
+	body, urls, err := fetcher.Fetch(url)
+	r := crawlResult{url, body, urls, err}
+	// 結果をチャネルに送信
+	ch <- r
+	if err != nil {
+		return
+	}
+	for _, u := range urls {
+		wg.Add(1)
+		// crawlを再帰で呼びdepthを-1
+		go crawlWorker(u, depth-1, fetcher, ch, wg)
+	}
+	return
+}
+
+// stringがキーで値がfakeResult型のポインタになったmapを指定
+type fakeFetcher map[string]*fakeResult
+
+// Fetcher()の戻り値と同じbodyとurls
+type fakeResult struct {
+	body string
+	urls []string
+}
+
+// 自身のmapにURLをキーとする項目があるばそれを返し、無ければ"not found"を出力
+func (f fakeFetcher) Fetch(url string) (string, []string, error) {
+	// 自身のmapの中にurlの項目があるか確認
+	if res, ok := f[url]; ok {
+		return res.body, res.urls, nil
+	}
+	// なければnot foundを返す
+	return "", nil, fmt.Errorf("not found: %s", url)
+}
+
+// ダミーデータは、URLをキーにして、bodyと次階層のurlsを持ったfakeResult
+var fetcher = fakeFetcher{
+	"https://golang.org/": &fakeResult{
+		"The Go Programming Language",
+		[]string{
+			"https://golang.org/pkg/",
+			"https://golang.org/cmd/",
+		},
+	},
+	"https://golang.org/pkg/": &fakeResult{
+		"Packages",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/cmd/",
+			"https://golang.org/pkg/fmt/",
+			"https://golang.org/pkg/os/",
+		},
+	},
+	"https://golang.org/pkg/fmt/": &fakeResult{
+		"Package fmt",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/pkg/",
+		},
+	},
+	"https://golang.org/pkg/os/": &fakeResult{
+		"Package os",
+		[]string{
+			"https://golang.org/",
+			"https://golang.org/pkg/",
+		},
+	},
+}
 
 func main() {
 	// ・Packages, variables, and functions.
@@ -1088,20 +1270,38 @@ func main() {
 	// }()
 	// fibonacci(c, quit)
 
-	tick := time.Tick(100 * time.Millisecond)
-	boom := time.After(500 * time.Millisecond)
-	for {
-		// どのchでもなければdefaultが実行される
-		select {
-		case <-tick:
-			fmt.Println("tick.")
-		case <-boom:
-			fmt.Println("BOOM!")
-			return
-		default:
-			fmt.Println("    .")
-			time.Sleep(50 * time.Millisecond)
-		}
-	}
+	// tick := time.Tick(100 * time.Millisecond)
+	// boom := time.After(500 * time.Millisecond)
+	// for {
+	// 	// どのchでもなければdefaultが実行される
+	// 	select {
+	// 	case <-tick:
+	// 		fmt.Println("tick.")
+	// 	case <-boom:
+	// 		fmt.Println("BOOM!")
+	// 		return
+	// 	default:
+	// 		fmt.Println("    .")
+	// 		time.Sleep(50 * time.Millisecond)
+	// 	}
+	// }
+
+	// ch := make(chan int)
+	// // ランダムな二分木を生成しWalkする
+	// go Walk(tree.New(1), ch)
+	// for i := range ch {
+	// 	fmt.Println(i)
+	// }
+	// fmt.Println(Same(tree.New(1), tree.New(1)))
+	// fmt.Println(Same(tree.New(1), tree.New(2)))
+
+	// c := SafeCounter{v: make(map[string]int)}
+	// for i := 0; i < 1000; i++ {
+	// 	go c.Inc("somekey")
+	// }
+	// time.Sleep(time.Second)
+	// fmt.Println(c.Value("somekey"))
+
+	Crawl("https://golang.org/", 4, fetcher)
 
 }
